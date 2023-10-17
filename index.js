@@ -39,9 +39,9 @@ const storage = multer.diskStorage({
 	destination: (req, file, cb) => {  // 파일이 업로드될 경로 설정
 		const { category } = req.body
         const path = `home/caitory/diplomat_upload/${category}/`
-        if(!fs.existsSync(uploadPath)){
+        if(!fs.existsSync(path)){
             //upload 폴더가 존재하지 않을 시 생성
-            fs.mkdirSync(uploadPath);
+            fs.mkdirSync(path);
         }
         console.log("test file", path)
         callback(null, path);
