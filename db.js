@@ -4,11 +4,11 @@ module.exports = function () {
     return {
       init: function () {
         return mysql.createConnection({
-          host: 'localhost',
+          host: '49.172.51.218',
           port: '3306',
-          user: 'root',
-          password: '',
-          database: 'TEST_DB'
+          user: 'caitory',
+          password: 'clabbi3177^^',
+          database: 'diplomat'
         })
       },
       
