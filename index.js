@@ -4,6 +4,11 @@ const multer  = require('multer')
 const fs = require('fs')
 const bodyParser = require('body-parser');
 const path = require('path');
+
+
+
+
+const { fork } = require('child_process');
 const mysql = require('./db')();
 const connection = mysql.init();
 mysql.db_open(connection);
@@ -33,7 +38,7 @@ function checkDiskSpace(diskPath, callback) {
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {  // 파일이 업로드될 경로 설정
 		const { category } = req.body
-        const path = `${category}/`
+        const path = `home/caitory/diplomat_upload/${category}/`
         fs.mkdirSync(path, { recursive: true })
         cb(null, path)
 	},
@@ -48,49 +53,61 @@ const upload = multer({ storage: storage })
 app.get('/files', (req, res) => {
     const { category, offset, limit, order } = req.query
     //const params = [category, order, parseInt(limit), parseInt(offset)]
+    if(category){
 
-    let query = 'SELECT * FROM contents WHERE content_category = ?';
-    const params = [category];
-    
-    connection.query(query, params, (err, results) => {
-        if(err){
-            console.log(err)
-        }
-        if(results?.length == 0){
-           return res.sendStatus(404) 
-        }else{
-            if(limit || offset){
-                const parsedLimit = parseInt(limit);
-                const parsedOffset = parseInt(offset);
-                
-                if (isNaN(parsedLimit) || isNaN(parsedOffset)) {
-                    return res.status(400).json({ error: 'Invalid limit or offset values' });
-                }
-                
-                query += ' LIMIT ? OFFSET ?';
-                params.push(parsedLimit, parsedOffset);
-            }
-            //어떤 기준으로 할건지 ?
-            if (order) {
-                if(order == '+create_at'){
-                    query += ' ORDER BY content_create_at ASC';
-                    params.push(order);
-                }else if(order == '-create_at'){
-                    query += ' ORDER BY content_create_at DESC';
-                    params.push(order);
-                }
-                
-            }
+        let query = 'SELECT * FROM contents WHERE content_category = ?';
+        const params = [category];
         
-            connection.query(query, params, (err, results, fields) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(500).json({ error: 'Internal Server Error' });
+        connection.query(query, params, (err, results) => {
+            if(err){
+                console.log(err)
+            }
+            if(results?.length == 0){
+               return res.sendStatus(404) 
+            }else{
+                if(limit || offset){
+                    const parsedLimit = parseInt(limit);
+                    const parsedOffset = parseInt(offset);
+                    
+                    if (isNaN(parsedLimit) || isNaN(parsedOffset)) {
+                        return res.status(400).json({ error: 'Invalid limit or offset values' });
+                    }
+                    
+                    query += ' LIMIT ? OFFSET ?';
+                    params.push(parsedLimit, parsedOffset);
                 }
-                return res.send(results);
-            });
-        }
-    })
+                //어떤 기준으로 할건지 ?
+                if (order) {
+                    if(order == '+create_at'){
+                        query += ' ORDER BY content_create_at ASC';
+                        params.push(order);
+                    }else if(order == '-create_at'){
+                        query += ' ORDER BY content_create_at DESC';
+                        params.push(order);
+                    }
+                    
+                }
+            
+                connection.query(query, params, (err, results, fields) => {
+                    if (err) {
+                        console.log(err);
+                        return res.status(500).json({ error: 'Internal Server Error' });
+                    }
+                    return res.send(results);
+                });
+            }
+        })
+    }else{
+        let query = 'SELECT * FROM contents';
+        connection.query(query, (err, results, fields) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            }
+            return res.send(results);
+        });
+    }
+
 
     
 }) 
@@ -102,6 +119,13 @@ app.delete('/files/:file_id', (req, res) => {
         if(results?.length == 0){
             return res.sendStatus(404)
         }else{
+            var dataList = [];
+            for (var data of results){
+                dataList.push(data.content_path);
+              };
+            fs.unlink(dataList[0], (err) => {
+                console.log(err)
+            })
             connection.query('DELETE FROM contents WHERE(content_id = ?)', file_id, 
             function(err, results, fields){
                 if(err){
