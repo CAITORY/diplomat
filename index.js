@@ -44,7 +44,7 @@ const storage = multer.diskStorage({
             fs.mkdirSync(uploadPath);
         }
         console.log("test file", path)
-        callback(null, uploadPath);
+        callback(null, path);
 	},
 	filename: (req, file, cb) => {	// timestamp를 이용해 새로운 파일명 설정
 		let newFileName = new Date().valueOf() + path.extname(file.originalname)
