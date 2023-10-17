@@ -37,11 +37,14 @@ function checkDiskSpace(diskPath, callback) {
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {  // 파일이 업로드될 경로 설정
-        console.log("test file ", file)
 		const { category } = req.body
         const path = `home/caitory/diplomat_upload/${category}/`
-        fs.mkdirSync(path, { recursive: true })
-        cb(null, path)
+        if(!existsSync(uploadPath)){
+            //upload 폴더가 존재하지 않을 시 생성
+            mkdirSync(uploadPath);
+        }
+        console.log("test file", path)
+        callback(null, uploadPath);
 	},
 	filename: (req, file, cb) => {	// timestamp를 이용해 새로운 파일명 설정
 		let newFileName = new Date().valueOf() + path.extname(file.originalname)
