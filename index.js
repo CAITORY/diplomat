@@ -43,7 +43,6 @@ const storage = multer.diskStorage({
             //upload 폴더가 존재하지 않을 시 생성
             fs.mkdirSync(path);
         }
-        console.log("test file", path)
         cb(null, path);
 	},
 	filename: (req, file, cb) => {	// timestamp를 이용해 새로운 파일명 설정
@@ -89,7 +88,6 @@ app.get('/files', (req, res) => {
                         query += ' ORDER BY content_create_at DESC';
                         params.push(order);
                     }
-                    
                 }
             
                 connection.query(query, params, (err, results, fields) => {
@@ -111,9 +109,6 @@ app.get('/files', (req, res) => {
             return res.send(results);
         });
     }
-
-
-    
 }) 
 
 app.delete('/files/:file_id', (req, res) => {
