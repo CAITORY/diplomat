@@ -56,7 +56,7 @@ app.get('/files', (req, res) => {
         if(err){
             console.log(err)
         }
-        if(results.length == 0){
+        if(results?.length == 0){
            return res.sendStatus(404) 
         }else{
             if(limit || offset){
@@ -99,7 +99,7 @@ app.delete('/files/:file_id', (req, res) => {
     const { file_id } = req.params
     connection.query('SELECT * FROM contents WHERE(content_id = ?)', file_id,
     function(err, results){
-        if(results.length == 0){
+        if(results?.length == 0){
             return res.sendStatus(404)
         }else{
             connection.query('DELETE FROM contents WHERE(content_id = ?)', file_id, 
@@ -143,7 +143,7 @@ app.post('/uploadFile', upload.single('file'), (req, res, err) => {
         let selectQuery = 'SELECT * FROM contents WHERE (content_name = ?)'
 
         connection.query(selectQuery, name, function(err, results){
-            if(results.length !== 0){
+            if(results?.length !== 0){
                 return res.status(400).json({message : 'file name already taken'})
             }else{
                 connection.query(query, param, function (err, results, fields) {
