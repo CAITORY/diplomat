@@ -116,7 +116,7 @@ app.delete('/files/:file_id', (req, res) => {
     connection.query('SELECT * FROM contents WHERE(content_id = ?)', file_id,
     function(err, results){
         console.log(results)
-        if(results?.length == 0 || undefined){
+        if(results?.length == 0 || results == undefined){
             return res.sendStatus(404)
         }else{
             var dataList = [];
