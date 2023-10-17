@@ -115,6 +115,7 @@ app.delete('/files/:file_id', (req, res) => {
     const { file_id } = req.params
     connection.query('SELECT * FROM contents WHERE(content_id = ?)', file_id,
     function(err, results){
+        console.log(results)
         if(results?.length == 0){
             return res.sendStatus(404)
         }else{
